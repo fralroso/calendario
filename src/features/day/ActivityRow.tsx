@@ -1,4 +1,4 @@
-import { PRIORITY_LABEL, type Activity } from '../../domain/activity';
+import { CATEGORY_LABEL, PRIORITY_LABEL, type Activity } from '../../domain/activity';
 
 interface Props {
   activity: Activity;
@@ -10,7 +10,7 @@ interface Props {
 export default function ActivityRow({ activity: a, isNext, onOpen, onToggle }: Props) {
   const off = a.status !== 'pending';
   const done = a.status === 'done';
-  const hasMeta = isNext || a.priority !== 'none' || a.location !== '' || a.status === 'cancelled';
+  const hasMeta = isNext || a.category !== 'other' || a.priority !== 'none' || a.location !== '' || a.status === 'cancelled';
 
   return (
     <li className={`row${off ? ' row--off' : ''}${isNext ? ' row--next' : ''}`}>
@@ -26,6 +26,7 @@ export default function ActivityRow({ activity: a, isNext, onOpen, onToggle }: P
           {hasMeta && (
             <span className="row__meta">
               {isNext && <span className="flag">Siguiente</span>}
+              {a.category !== 'other' && <span>{CATEGORY_LABEL[a.category]}</span>}
               {a.priority !== 'none' && <span>{PRIORITY_LABEL[a.priority]}</span>}
               {a.location && <span>{a.location}</span>}
               {a.status === 'cancelled' && <span>Cancelada</span>}

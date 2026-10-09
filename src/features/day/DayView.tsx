@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { listByDate, setStatus } from '../../data/activityRepository';
 import type { Activity } from '../../domain/activity';
@@ -10,18 +10,17 @@ import {
   toISODate,
   toMinutes,
 } from '../../domain/time';
-import ActivityForm from '../activity/ActivityForm';
-import LoginSheet from '../auth/LoginSheet';
 import SyncStatus from '../sync/SyncStatus';
 import ActivityRow from './ActivityRow';
+import { useNow } from './useNow';
 
-function useNow(): Date {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 30_000);
-    return () => clearInterval(t);
-  }, []);
-  return now;
+interface Props {
+  date: string;
+  onDateChange: (date: string) => void;
+  onBack: () => void;
+  onNew: () => void;
+  onOpen: (activity: Activity) => void;
+  onLogin: () => void;
 }
 
 function NowMarker({ time }: { time: string }) {
@@ -33,13 +32,9 @@ function NowMarker({ time }: { time: string }) {
   );
 }
 
-export default function DayView() {
+export default function DayView({ date, onDateChange, onBack, onNew, onOpen, onLogin }: Props) {
   const now = useNow();
   const today = toISODate(now);
-  const [date, setDate] = useState(today);
-  const [sheet, setSheet] = useState<Activity | 'new' | null>(null);
-  const [showLogin, setShowLogin] = useState(false);
-
   const items = useLiveQuery(() => listByDate(date), [date]);
 
   const isToday = date === today;
@@ -58,9 +53,7 @@ export default function DayView() {
 
   const nextId = isToday
     ? items?.find(
-        (a) =>
-          a.status === 'pending' &&
-          toMinutes(a.endTime ?? a.startTime) >= nowMin,
+        (a) => a.status === 'pending' && toMinutes(a.endTime ?? a.startTime) >= nowMin,
       )?.id
     : undefined;
 
@@ -76,7 +69,7 @@ export default function DayView() {
         key={a.id}
         activity={a}
         isNext={a.id === nextId}
-        onOpen={() => setSheet(a)}
+        onOpen={() => onOpen(a)}
         onToggle={() => setStatus(a.id, a.status === 'done' ? 'pending' : 'done')}
       />,
     );
@@ -87,21 +80,25 @@ export default function DayView() {
 
   return (
     <main className="app">
+      <button type="button" className="back" onClick={onBack}>
+        ‹ Semanas
+      </button>
+
       <header className="head">
         <div>
           <h1 className="head__weekday">{weekday}</h1>
           <p className="head__rest">{rest}</p>
         </div>
         <nav className="head__nav" aria-label="Cambiar de día">
-          <button type="button" className="nav-btn" onClick={() => setDate(addDays(date, -1))} aria-label="Día anterior">
+          <button type="button" className="nav-btn" onClick={() => onDateChange(addDays(date, -1))} aria-label="Día anterior">
             ‹
           </button>
           {!isToday && (
-            <button type="button" className="nav-btn nav-btn--text" onClick={() => setDate(today)}>
+            <button type="button" className="nav-btn nav-btn--text" onClick={() => onDateChange(today)}>
               Hoy
             </button>
           )}
-          <button type="button" className="nav-btn" onClick={() => setDate(addDays(date, 1))} aria-label="Día siguiente">
+          <button type="button" className="nav-btn" onClick={() => onDateChange(addDays(date, 1))} aria-label="Día siguiente">
             ›
           </button>
         </nav>
@@ -109,7 +106,7 @@ export default function DayView() {
 
       <div className="subhead">
         <p className="summary">{summary}</p>
-        <SyncStatus onLogin={() => setShowLogin(true)} />
+        <SyncStatus onLogin={onLogin} />
       </div>
 
       {items !== undefined && items.length === 0 ? (
@@ -122,19 +119,10 @@ export default function DayView() {
       )}
 
       <div className="fab-wrap">
-        <button type="button" className="fab" onClick={() => setSheet('new')}>
+        <button type="button" className="fab" onClick={onNew}>
           + Nueva actividad
         </button>
       </div>
-
-      {sheet !== null && (
-        <ActivityForm
-          initial={sheet === 'new' ? null : sheet}
-          defaultDate={date}
-          onClose={() => setSheet(null)}
-        />
-      )}
-      {showLogin && <LoginSheet onClose={() => setShowLogin(false)} />}
     </main>
   );
 }

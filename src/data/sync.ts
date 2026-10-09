@@ -9,6 +9,7 @@ interface Row {
   id: string;
   user_id: string;
   title: string;
+  category: Activity['category'];
   date: string;
   start_time: string;
   end_time: string | null;
@@ -28,6 +29,7 @@ function toRow(a: Activity, userId: string): Row {
     id: a.id,
     user_id: userId,
     title: a.title,
+    category: a.category,
     date: a.date,
     start_time: a.startTime,
     end_time: a.endTime,
@@ -48,6 +50,7 @@ function fromRow(r: Row): Activity {
     id: r.id,
     userId: r.user_id,
     title: r.title,
+    category: r.category ?? 'other',
     date: r.date,
     startTime: r.start_time,
     endTime: r.end_time,

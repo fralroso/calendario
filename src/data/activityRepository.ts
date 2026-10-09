@@ -1,5 +1,5 @@
 // Único punto de acceso a los datos. La pantalla nunca toca la base directamente,
-// así que más adelante se agrega la sincronización con Supabase sin tocar la interfaz.
+// así que la sincronización con Supabase no obliga a cambiar la interfaz.
 import { db } from './db';
 import { requestSync } from './sync';
 import type { Activity, ActivityDraft, Status } from '../domain/activity';
@@ -12,11 +12,27 @@ function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+// Actividades guardadas antes de existir el "tipo" quedan como "Otros".
+const withDefaults = (a: Activity): Activity => ({ ...a, category: a.category ?? 'other' });
+
+const byDateTime = (a: Activity, b: Activity) =>
+  a.date.localeCompare(b.date) || toMinutes(a.startTime) - toMinutes(b.startTime);
+
 export async function listByDate(date: string): Promise<Activity[]> {
   const rows = await db.activities.where('date').equals(date).toArray();
   return rows
     .filter((a) => a.deletedAt === null)
-    .sort((a, b) => toMinutes(a.startTime) - toMinutes(b.startTime));
+    .map(withDefaults)
+    .sort(byDateTime);
+}
+
+// Ambas fechas incluidas (YYYY-MM-DD).
+export async function listRange(from: string, to: string): Promise<Activity[]> {
+  const rows = await db.activities.where('date').between(from, to, true, true).toArray();
+  return rows
+    .filter((a) => a.deletedAt === null)
+    .map(withDefaults)
+    .sort(byDateTime);
 }
 
 export async function saveActivity(draft: ActivityDraft, id?: string): Promise<Activity> {

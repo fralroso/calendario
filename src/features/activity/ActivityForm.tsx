@@ -1,11 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { listByDate, removeActivity, saveActivity } from '../../data/activityRepository';
+import DateField from '../../components/DateField';
+import TimeField from '../../components/TimeField';
 import {
+  CATEGORIES,
   PRIORITIES,
   REMINDER_OPTIONS,
   STATUSES,
   type Activity,
   type ActivityDraft,
+  type Category,
   type Priority,
   type Status,
 } from '../../domain/activity';
@@ -26,6 +30,7 @@ function defaultStart(date: string): string {
 
 export default function ActivityForm({ initial, defaultDate, onClose }: Props) {
   const [title, setTitle] = useState(initial?.title ?? '');
+  const [category, setCategory] = useState<Category>(initial?.category ?? 'work');
   const [date, setDate] = useState(initial?.date ?? defaultDate);
   const [startTime, setStartTime] = useState(initial?.startTime ?? defaultStart(defaultDate));
   const [endTime, setEndTime] = useState(initial?.endTime ?? '');
@@ -48,6 +53,7 @@ export default function ActivityForm({ initial, defaultDate, onClose }: Props) {
   function buildDraft(): ActivityDraft {
     return {
       title: title.trim(),
+      category,
       date,
       startTime,
       endTime: endTime || null,
@@ -117,20 +123,30 @@ export default function ActivityForm({ initial, defaultDate, onClose }: Props) {
             />
           </label>
 
-          <div className="field-row">
-            <label className="field">
-              <span>Fecha</span>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-            </label>
-            <label className="field">
-              <span>Inicio</span>
-              <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-            </label>
-            <label className="field">
-              <span>Fin (opcional)</span>
-              <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-            </label>
+          <DateField value={date} onChange={setDate} />
+
+          <div className="time-grid">
+            <TimeField label="Inicio" value={startTime} onChange={setStartTime} />
+            <TimeField label="Fin (opcional)" value={endTime} onChange={setEndTime} optional />
           </div>
+
+          <fieldset className="choice">
+            <legend>Tipo</legend>
+            <div className="choice__row">
+              {CATEGORIES.map((c) => (
+                <label key={c.value} className={`chip${category === c.value ? ' is-on' : ''}`}>
+                  <input
+                    type="radio"
+                    name="category"
+                    value={c.value}
+                    checked={category === c.value}
+                    onChange={() => setCategory(c.value)}
+                  />
+                  {c.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           <fieldset className="choice">
             <legend>Prioridad</legend>

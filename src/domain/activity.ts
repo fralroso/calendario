@@ -4,13 +4,15 @@ export type Priority = 'none' | 'green' | 'yellow' | 'red';
 export type Status = 'pending' | 'done' | 'cancelled';
 export type Source = 'typed' | 'voice' | 'image';
 export type SyncState = 'pending' | 'synced';
+export type Category = 'work' | 'friends' | 'social' | 'sport' | 'other';
 
 export interface Activity {
   id: string; // se genera en el dispositivo, así se puede crear sin internet
   userId: string; // 'local' hasta que exista login
   title: string;
+  category: Category;
   date: string; // YYYY-MM-DD (hora local)
-  startTime: string; // HH:mm
+  startTime: string; // HH:mm (24 horas)
   endTime: string | null; // HH:mm
   priority: Priority;
   location: string; // "Ubicación / Referencia"
@@ -28,6 +30,7 @@ export interface Activity {
 export type ActivityDraft = Pick<
   Activity,
   | 'title'
+  | 'category'
   | 'date'
   | 'startTime'
   | 'endTime'
@@ -39,17 +42,33 @@ export type ActivityDraft = Pick<
   | 'source'
 >;
 
+export const CATEGORIES: { value: Category; label: string }[] = [
+  { value: 'work', label: 'Trabajo' },
+  { value: 'friends', label: 'Amigos' },
+  { value: 'social', label: 'Social' },
+  { value: 'sport', label: 'Deportiva' },
+  { value: 'other', label: 'Otros' },
+];
+
+export const CATEGORY_LABEL: Record<Category, string> = {
+  work: 'Trabajo',
+  friends: 'Amigos',
+  social: 'Social',
+  sport: 'Deportiva',
+  other: 'Otros',
+};
+
 export const PRIORITIES: { value: Priority; label: string }[] = [
   { value: 'none', label: 'Sin prioridad' },
-  { value: 'green', label: 'Importante' },
-  { value: 'yellow', label: 'Más importante' },
+  { value: 'green', label: 'Poco importante' },
+  { value: 'yellow', label: 'Importante' },
   { value: 'red', label: 'Muy importante' },
 ];
 
 export const PRIORITY_LABEL: Record<Priority, string> = {
   none: 'Sin prioridad',
-  green: 'Importante',
-  yellow: 'Más importante',
+  green: 'Poco importante',
+  yellow: 'Importante',
   red: 'Muy importante',
 };
 

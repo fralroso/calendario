@@ -5,6 +5,7 @@ create table if not exists public.activities (
   id               text primary key,
   user_id          uuid not null default auth.uid() references auth.users (id) on delete cascade,
   title            text not null,
+  category         text not null default 'other',
   date             text not null,
   start_time       text not null,
   end_time         text,
@@ -18,6 +19,9 @@ create table if not exists public.activities (
   updated_at       bigint not null,
   deleted_at       bigint
 );
+
+-- Para proyectos creados con la versión anterior (sin "tipo"):
+alter table public.activities add column if not exists category text not null default 'other';
 
 create index if not exists activities_user_updated_idx
   on public.activities (user_id, updated_at);

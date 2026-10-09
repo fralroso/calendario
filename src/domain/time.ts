@@ -38,3 +38,34 @@ export function formatLongDate(iso: string): { weekday: string; rest: string } {
     rest: d.toLocaleDateString('es-EC', { day: 'numeric', month: 'long' }),
   };
 }
+
+export const MONTHS = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+];
+
+// month va de 1 a 12
+export function daysInMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
+// La semana empieza el lunes.
+export function startOfWeek(iso: string): string {
+  const d = parseISODate(iso);
+  const dow = (d.getDay() + 6) % 7;
+  return addDays(iso, -dow);
+}
+
+export function weekdayShort(iso: string): string {
+  return parseISODate(iso).toLocaleDateString('es-EC', { weekday: 'short' }).replace('.', '');
+}
+
+export function dayOfMonth(iso: string): number {
+  return parseISODate(iso).getDate();
+}
+
+export function formatDayMonth(iso: string): string {
+  return parseISODate(iso)
+    .toLocaleDateString('es-EC', { day: 'numeric', month: 'short' })
+    .replace('.', '');
+}
