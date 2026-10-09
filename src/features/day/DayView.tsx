@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { listByDate, setStatus } from '../../data/activityRepository';
 import type { Activity } from '../../domain/activity';
+import { isHoliday } from '../../domain/holidays';
 import {
   addDays,
   formatClock,
@@ -20,7 +21,6 @@ interface Props {
   onBack: () => void;
   onNew: () => void;
   onOpen: (activity: Activity) => void;
-  onLogin: () => void;
 }
 
 function NowMarker({ time }: { time: string }) {
@@ -32,7 +32,7 @@ function NowMarker({ time }: { time: string }) {
   );
 }
 
-export default function DayView({ date, onDateChange, onBack, onNew, onOpen, onLogin }: Props) {
+export default function DayView({ date, onDateChange, onBack, onNew, onOpen }: Props) {
   const now = useNow();
   const today = toISODate(now);
   const items = useLiveQuery(() => listByDate(date), [date]);
@@ -84,7 +84,7 @@ export default function DayView({ date, onDateChange, onBack, onNew, onOpen, onL
         ‹ Semanas
       </button>
 
-      <header className="head">
+      <header className={`head${isHoliday(date) ? ' head--holiday' : ''}`}>
         <div>
           <h1 className="head__weekday">{weekday}</h1>
           <p className="head__rest">{rest}</p>
@@ -106,7 +106,7 @@ export default function DayView({ date, onDateChange, onBack, onNew, onOpen, onL
 
       <div className="subhead">
         <p className="summary">{summary}</p>
-        <SyncStatus onLogin={onLogin} />
+        <SyncStatus />
       </div>
 
       {items !== undefined && items.length === 0 ? (

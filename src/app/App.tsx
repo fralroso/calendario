@@ -1,21 +1,36 @@
 import { useEffect, useState } from 'react';
+import { supabase } from '../data/supabase';
 import { startSync } from '../data/sync';
 import type { Activity } from '../domain/activity';
 import { startOfWeek, toISODate } from '../domain/time';
 import ActivityForm from '../features/activity/ActivityForm';
-import LoginSheet from '../features/auth/LoginSheet';
+import LoginScreen from '../features/auth/LoginScreen';
+import { useSession } from '../features/auth/useSession';
 import DayView from '../features/day/DayView';
 import WeekView from '../features/week/WeekView';
 
-// Pantalla principal: dos semanas (esta y la siguiente). De ahí se entra a un día,
-// y del día a cada actividad.
+// Sin sesión no se muestra nada: solo la pantalla de entrada.
+// Con sesión: semana -> día -> actividad.
 export default function App() {
-  useEffect(() => startSync(), []);
-
+  const { session, ready } = useSession();
   const [weekStart, setWeekStart] = useState(() => startOfWeek(toISODate(new Date())));
   const [dayDate, setDayDate] = useState<string | null>(null);
   const [sheet, setSheet] = useState<Activity | 'new' | null>(null);
-  const [showLogin, setShowLogin] = useState(false);
+
+  useEffect(() => startSync(), []);
+
+  // Al cerrar sesión se vuelve al inicio y se cierra cualquier formulario.
+  useEffect(() => {
+    if (!session) {
+      setDayDate(null);
+      setSheet(null);
+    }
+  }, [session]);
+
+  if (supabase) {
+    if (!ready) return <main className="gate" aria-busy="true" />;
+    if (!session) return <LoginScreen />;
+  }
 
   const newActivityDate = dayDate ?? toISODate(new Date());
 
@@ -27,7 +42,6 @@ export default function App() {
           onWeekStartChange={setWeekStart}
           onOpenDay={setDayDate}
           onNew={() => setSheet('new')}
-          onLogin={() => setShowLogin(true)}
         />
       ) : (
         <DayView
@@ -36,7 +50,6 @@ export default function App() {
           onBack={() => setDayDate(null)}
           onNew={() => setSheet('new')}
           onOpen={setSheet}
-          onLogin={() => setShowLogin(true)}
         />
       )}
 
@@ -47,7 +60,6 @@ export default function App() {
           onClose={() => setSheet(null)}
         />
       )}
-      {showLogin && <LoginSheet onClose={() => setShowLogin(false)} />}
     </>
   );
 }
