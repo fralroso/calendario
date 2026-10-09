@@ -11,6 +11,8 @@ import {
   toMinutes,
 } from '../../domain/time';
 import ActivityForm from '../activity/ActivityForm';
+import LoginSheet from '../auth/LoginSheet';
+import SyncStatus from '../sync/SyncStatus';
 import ActivityRow from './ActivityRow';
 
 function useNow(): Date {
@@ -36,6 +38,7 @@ export default function DayView() {
   const today = toISODate(now);
   const [date, setDate] = useState(today);
   const [sheet, setSheet] = useState<Activity | 'new' | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
 
   const items = useLiveQuery(() => listByDate(date), [date]);
 
@@ -104,7 +107,10 @@ export default function DayView() {
         </nav>
       </header>
 
-      <p className="summary">{summary}</p>
+      <div className="subhead">
+        <p className="summary">{summary}</p>
+        <SyncStatus onLogin={() => setShowLogin(true)} />
+      </div>
 
       {items !== undefined && items.length === 0 ? (
         <div className="empty">
@@ -128,6 +134,7 @@ export default function DayView() {
           onClose={() => setSheet(null)}
         />
       )}
+      {showLogin && <LoginSheet onClose={() => setShowLogin(false)} />}
     </main>
   );
 }

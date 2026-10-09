@@ -1,6 +1,7 @@
 // Único punto de acceso a los datos. La pantalla nunca toca la base directamente,
 // así que más adelante se agrega la sincronización con Supabase sin tocar la interfaz.
 import { db } from './db';
+import { requestSync } from './sync';
 import type { Activity, ActivityDraft, Status } from '../domain/activity';
 import { toMinutes } from '../domain/time';
 
@@ -31,14 +32,17 @@ export async function saveActivity(draft: ActivityDraft, id?: string): Promise<A
     syncState: 'pending',
   };
   await db.activities.put(activity);
+  requestSync();
   return activity;
 }
 
 export async function setStatus(id: string, status: Status): Promise<void> {
   await db.activities.update(id, { status, updatedAt: Date.now(), syncState: 'pending' });
+  requestSync();
 }
 
 export async function removeActivity(id: string): Promise<void> {
   const now = Date.now();
   await db.activities.update(id, { deletedAt: now, updatedAt: now, syncState: 'pending' });
+  requestSync();
 }
