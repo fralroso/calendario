@@ -200,7 +200,7 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
 
 /* ---------- Pantalla de semana ---------- */
 .back { margin: -4px 0 8px; padding: 8px 0; color: var(--accent); font-weight: 700; font-size: 16px; }
-.head__weekday--week { font-size: 40px; }
+.head__weekday--week { font-size: 34px; }
 .cap { text-transform: capitalize; }
 
 .weeklabel { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
@@ -296,3 +296,35 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
   .blk__cs { display: none; }
   .blk__cf { display: inline; }
 }
+
+/* ---------- Pestañas ---------- */
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; margin-bottom: 14px; background: #dce5e3; border-radius: 14px; }
+.tab { min-height: 44px; border-radius: 10px; font-size: 17px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tab.is-on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(18, 34, 43, 0.18); }
+.tab__badge { min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--p-red); color: #ffffff; font-size: 13px; line-height: 1.4; }
+
+/* ---------- Semanas: una o dos ---------- */
+.viewtoggle { display: flex; gap: 6px; margin: 0 0 10px; }
+.vt { min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 700; color: var(--muted); }
+.vt.is-on { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+.weekblock { margin-bottom: 12px; }
+.cols--compact .col__head { height: 36px; }
+.cols--compact .axis__head { height: 40px; }
+.cols--compact .col__num { min-width: 26px; height: 26px; line-height: 26px; font-size: 16px; }
+.cols--compact .col { padding-bottom: 6px; }
+.cols--compact .col__count { margin-top: 4px; font-size: 12px; }
+
+/* ---------- Pendientes ---------- */
+.tsec { margin-bottom: 18px; }
+.tsec__title { margin: 0 0 8px; font-size: 18px; display: flex; align-items: baseline; gap: 8px; }
+.tsec__title--overdue { color: var(--p-red); }
+.tsec__count { font-size: 14px; font-weight: 400; color: var(--muted); }
+.tlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.trow { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; }
+.trow--done .row__body { opacity: 0.55; }
+.due { font-weight: 700; color: var(--ink); }
+.due--overdue { color: var(--p-red); }
+.due--today { color: var(--accent); }
+.showdone { display: block; margin: 0 auto 8px; padding: 10px; color: var(--accent); font-weight: 700; }
+.choice__label { display: block; margin-bottom: 4px; font-size: 14px; font-weight: 700; color: var(--muted); }
+button.chip { background: var(--surface); }

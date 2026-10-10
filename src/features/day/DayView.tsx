@@ -48,10 +48,10 @@ export default function DayView({ date, onDateChange, onBack, onNew, onQuick, on
     items === undefined
       ? ''
       : pending === 0
-        ? 'Nada pendiente'
+        ? 'Nada por hacer'
         : pending === 1
-          ? '1 pendiente'
-          : `${pending} pendientes`;
+          ? '1 actividad por hacer'
+          : `${pending} por hacer`;
 
   const nextId = isToday
     ? items?.find(

@@ -9,7 +9,9 @@ export async function signOutAndClear(): Promise<boolean> {
   if (!supabase) return false;
 
   await syncNow(); // intenta respaldar lo pendiente antes de salir
-  const pending = await db.activities.where('syncState').equals('pending').count();
+  const pending =
+    (await db.activities.where('syncState').equals('pending').count()) +
+    (await db.tasks.where('syncState').equals('pending').count());
   if (pending > 0) {
     const plural = pending === 1 ? 'una actividad sin respaldar' : `${pending} actividades sin respaldar`;
     const ok = window.confirm(
@@ -20,6 +22,7 @@ export async function signOutAndClear(): Promise<boolean> {
 
   await supabase.auth.signOut();
   await db.activities.clear();
+  await db.tasks.clear();
   Object.keys(localStorage)
     .filter((k) => k.startsWith('calendario:lastPull:'))
     .forEach((k) => localStorage.removeItem(k));

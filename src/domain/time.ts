@@ -69,3 +69,12 @@ export function formatDayMonth(iso: string): string {
     .toLocaleDateString('es-EC', { day: 'numeric', month: 'short' })
     .replace('.', '');
 }
+
+// Días entre dos fechas YYYY-MM-DD (positivo si "to" es posterior a "from").
+export function diffDays(from: string, to: string): number {
+  return Math.round((parseISODate(to).getTime() - parseISODate(from).getTime()) / 86_400_000);
+}
+
+export function weekdayLong(iso: string): string {
+  return parseISODate(iso).toLocaleDateString('es-EC', { weekday: 'long' });
+}

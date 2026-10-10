@@ -25,7 +25,13 @@ export default function SyncStatus() {
   const { session, ready } = useSession();
   const online = useOnline();
   const [accountOpen, setAccountOpen] = useState(false);
-  const pending = useLiveQuery(() => db.activities.where('syncState').equals('pending').count(), [], 0);
+  const pending = useLiveQuery(
+    async () =>
+      (await db.activities.where('syncState').equals('pending').count()) +
+      (await db.tasks.where('syncState').equals('pending').count()),
+    [],
+    0,
+  );
   const error = useSyncExternalStore(syncErrorStore.subscribe, syncErrorStore.getSnapshot);
 
   if (!supabase) return <p className="sync">Solo en este dispositivo</p>;

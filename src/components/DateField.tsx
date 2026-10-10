@@ -3,10 +3,11 @@ import { MONTHS, daysInMonth, pad } from '../domain/time';
 interface Props {
   value: string; // YYYY-MM-DD
   onChange: (value: string) => void;
+  label?: string;
 }
 
 // Fecha en orden día / mes / año, igual en cualquier celular o navegador.
-export default function DateField({ value, onChange }: Props) {
+export default function DateField({ value, onChange, label = 'Fecha' }: Props) {
   const [y, m, d] = value.split('-').map(Number);
   const thisYear = new Date().getFullYear();
   const years: number[] = [];
@@ -20,7 +21,7 @@ export default function DateField({ value, onChange }: Props) {
 
   return (
     <fieldset className="field field--group">
-      <legend>Fecha</legend>
+      <legend>{label}</legend>
       <div className="pair">
         <select aria-label="Día" value={d} onChange={(e) => set(y, m, Number(e.target.value))}>
           {days.map((n) => (
