@@ -275,9 +275,15 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
 .maplink { display: inline-block; margin: -6px 0 14px; padding: 6px 0; font-weight: 700; color: var(--accent); }
 .field__hint { display: block; margin-top: 4px; font-size: 13px; color: var(--muted); }
 
-/* ---------- IA y cuenta ---------- */
+/* ---------- Agregar rápido y cuenta ---------- */
 .notice { margin: 0 0 16px; padding: 12px 14px; background: #eaf3f4; border: 1px solid var(--accent); border-radius: var(--radius); }
 .notice__title { margin: 0; font-weight: 700; }
 .notice__list { margin: 6px 0 0; padding-left: 18px; font-size: 15px; }
 .mic.is-on { background: var(--p-red); border-color: var(--p-red); color: #ffffff; }
 .ok { margin: 0 0 12px; color: var(--p-green); font-weight: 700; }
+
+.examples { display: grid; gap: 6px; margin: 0 0 14px; }
+.example {
+  text-align: left; padding: 10px 12px; font-size: 15px; line-height: 1.3;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+}

@@ -20,8 +20,8 @@ import { pad, toISODate, toMinutes } from '../../domain/time';
 interface Props {
   initial: Activity | null; // null = actividad nueva
   defaultDate: string;
-  prefill?: ActivityDraft; // datos propuestos por la IA, para revisar antes de guardar
-  hints?: string[]; // suposiciones de la IA
+  prefill?: ActivityDraft; // datos propuestos por "Agregar rápido", para revisar antes de guardar
+  hints?: string[]; // suposiciones del intérprete
   onClose: () => void;
 }
 

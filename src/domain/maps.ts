@@ -21,13 +21,18 @@ export function extractMapLink(text: string): string | null {
   return bare ? clean(`https://${bare[0]}`) : null;
 }
 
-// Texto para mostrar: la referencia sin el enlace largo.
-export function locationLabel(text: string): string {
-  const withoutLinks = text
-    .replace(new RegExp(URL_SOURCE, 'gi'), '')
-    .replace(new RegExp(BARE_SOURCE, 'gi'), '')
+// Quita los enlaces de mapa del texto.
+export function removeMapLinks(text: string): string {
+  return text
+    .replace(new RegExp(URL_SOURCE, 'gi'), ' ')
+    .replace(new RegExp(BARE_SOURCE, 'gi'), ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+// Texto para mostrar: la referencia sin el enlace largo.
+export function locationLabel(text: string): string {
+  const withoutLinks = removeMapLinks(text);
   if (withoutLinks) return withoutLinks;
   return extractMapLink(text) ? 'Ver en el mapa' : text;
 }

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { supabase } from '../../data/supabase';
 import type { ActivityDraft } from '../../domain/activity';
-import { formatClock, toISODate } from '../../domain/time';
+import { parseQuick } from '../../parsing/quickParser';
 
 interface Props {
   onClose: () => void;
@@ -15,11 +14,15 @@ const SpeechRec: any =
     ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     : undefined;
 
+const EXAMPLES = [
+  'Reunión con productores el martes a las 10 en la oficina, muy importante',
+  'Mañana a las 9 de la mañana llamar a Juan, prioridad alta',
+];
+
 export default function QuickAddSheet({ onClose, onResult }: Props) {
   const [text, setText] = useState('');
   const [listening, setListening] = useState(false);
   const [usedVoice, setUsedVoice] = useState(false);
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recRef = useRef<any>(null);
@@ -68,60 +71,25 @@ export default function QuickAddSheet({ onClose, onResult }: Props) {
     setListening(true);
   }
 
-  async function submit() {
+  function submit() {
     const phrase = text.trim();
     if (!phrase) {
       setError('Escribe o dicta la actividad.');
       return;
     }
-    if (!navigator.onLine) {
-      setError('La IA necesita internet. Sin conexión, usa “+ Nueva actividad”.');
-      return;
-    }
     recRef.current?.stop();
-    setBusy(true);
-    setError('');
-    try {
-      const { data } = (await supabase?.auth.getSession()) ?? { data: { session: null } };
-      const token = data.session?.access_token ?? '';
-      const now = new Date();
-      const res = await fetch('/api/quick-add', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          text: phrase,
-          now: `${toISODate(now)} ${formatClock(now)}`,
-          weekday: now.toLocaleDateString('es-EC', { weekday: 'long' }),
-        }),
-      });
-      if (res.status === 404) {
-        setError('La IA solo funciona en la versión publicada (Vercel), no en tu computador.');
-        return;
-      }
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(json.error ?? 'No se pudo interpretar. Inténtalo de nuevo.');
-        return;
-      }
-      onResult(
-        { ...(json.draft as ActivityDraft), status: 'pending', source: usedVoice ? 'voice' : 'typed' },
-        (json.assumptions as string[]) ?? [],
-      );
-    } catch {
-      setError('No se pudo conectar. Revisa tu internet e inténtalo de nuevo.');
-    } finally {
-      setBusy(false);
-    }
+    const { draft, hints } = parseQuick(phrase, new Date());
+    onResult({ ...draft, source: usedVoice ? 'voice' : 'typed' }, hints);
   }
 
   return (
     <>
       <div className="backdrop" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-modal="true" aria-label="Actividad rápida con IA">
-        <h2 className="sheet__title">Rápida con IA</h2>
+      <div className="sheet" role="dialog" aria-modal="true" aria-label="Agregar rápido">
+        <h2 className="sheet__title">Agregar rápido</h2>
         <p className="sheet__hint">
-          Dime la actividad como se la dirías a un asistente. Ejemplo: “Reunión con productores el martes a
-          las 10 en la oficina, muy importante”.
+          Escribe o dicta la actividad con el día, la hora, el lugar y la prioridad. Después podrás revisarla
+          antes de guardar.
         </p>
 
         <label className="field">
@@ -134,6 +102,15 @@ export default function QuickAddSheet({ onClose, onResult }: Props) {
             autoFocus
           />
         </label>
+
+        <div className="examples">
+          <span className="field__hint">Ejemplos (toca uno para probarlo):</span>
+          {EXAMPLES.map((ex) => (
+            <button key={ex} type="button" className="example" onClick={() => setText(ex)}>
+              {ex}
+            </button>
+          ))}
+        </div>
 
         {error && (
           <p className="error" role="alert">
@@ -152,15 +129,13 @@ export default function QuickAddSheet({ onClose, onResult }: Props) {
               {listening ? 'Escuchando… (tocar para parar)' : 'Dictar con voz'}
             </button>
           )}
-          <button type="button" className="btn btn--primary" onClick={submit} disabled={busy}>
-            {busy ? 'Entendiendo…' : 'Entender'}
+          <button type="button" className="btn btn--primary" onClick={submit}>
+            Continuar
           </button>
         </div>
 
         {!SpeechRec && (
-          <p className="field__hint">
-            Para dictar, usa el micrófono del teclado de tu celular.
-          </p>
+          <p className="field__hint">Para dictar, usa el micrófono del teclado de tu celular.</p>
         )}
 
         <button type="button" className="btn-link btn-link--neutral" onClick={onClose}>
