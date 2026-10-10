@@ -287,3 +287,12 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
   text-align: left; padding: 10px 12px; font-size: 15px; line-height: 1.3;
   background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
 }
+
+/* Tipo dentro de los bloques de la semana: abreviado en pantallas angostas, completo en las anchas */
+.blk__c { display: block; overflow: hidden; white-space: nowrap; text-align: center; font-size: 10px; font-weight: 700; line-height: 1.15; color: #ffffff; }
+.blk--yellow .blk__c, .blk--none .blk__c { color: var(--ink); }
+.blk__cf { display: none; }
+@media (min-width: 430px) {
+  .blk__cs { display: none; }
+  .blk__cf { display: inline; }
+}

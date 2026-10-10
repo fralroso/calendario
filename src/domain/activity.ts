@@ -58,6 +58,15 @@ export const CATEGORY_LABEL: Record<Category, string> = {
   other: 'Otros',
 };
 
+// Para espacios muy angostos (las barras de la semana en un celular).
+export const CATEGORY_SHORT: Record<Category, string> = {
+  work: 'Trab',
+  friends: 'Amig',
+  social: 'Soc',
+  sport: 'Dep',
+  other: 'Otro',
+};
+
 export const PRIORITIES: { value: Priority; label: string }[] = [
   { value: 'none', label: 'Sin prioridad' },
   { value: 'green', label: 'Poco importante' },

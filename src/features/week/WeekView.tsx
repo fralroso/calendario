@@ -1,7 +1,7 @@
 import { useRef, type CSSProperties, type TouchEvent } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { listRange } from '../../data/activityRepository';
-import type { Activity } from '../../domain/activity';
+import { CATEGORY_LABEL, CATEGORY_SHORT, type Activity } from '../../domain/activity';
 import { isHoliday } from '../../domain/holidays';
 import { layoutDay } from '../../domain/layout';
 import {
@@ -199,7 +199,15 @@ export default function WeekView({ weekStart, onWeekStartChange, onOpenDay, onNe
                     }}
                   >
                     {b.lanes === 1 && (b.height / 100) * BAR_HEIGHT >= 16 && (
-                      <span className="blk__t">{b.activity.startTime}</span>
+                      <>
+                        <span className="blk__t">{b.activity.startTime}</span>
+                        {(b.height / 100) * BAR_HEIGHT >= 24 && (
+                          <span className="blk__c">
+                            <span className="blk__cs">{CATEGORY_SHORT[b.activity.category]}</span>
+                            <span className="blk__cf">{CATEGORY_LABEL[b.activity.category]}</span>
+                          </span>
+                        )}
+                      </>
                     )}
                   </span>
                 ))}

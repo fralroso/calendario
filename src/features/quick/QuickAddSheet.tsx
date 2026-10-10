@@ -14,6 +14,16 @@ const SpeechRec: any =
     ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     : undefined;
 
+// Si el dictado repitió la frase completa dos veces, deja una sola.
+function collapseRepeat(s: string): string {
+  const words = s.split(/\s+/);
+  const half = words.length / 2;
+  if (Number.isInteger(half) && half > 1 && words.slice(0, half).join(' ') === words.slice(half).join(' ')) {
+    return words.slice(0, half).join(' ');
+  }
+  return s;
+}
+
 const EXAMPLES = [
   'Reunión con productores el martes a las 10 en la oficina, muy importante',
   'Mañana a las 9 de la mañana llamar a Juan, prioridad alta',
@@ -48,21 +58,22 @@ export default function QuickAddSheet({ onClose, onResult }: Props) {
     rec.lang = 'es-EC';
     rec.interimResults = true;
     rec.continuous = false;
+    rec.maxAlternatives = 1;
     const base = text.trim() ? `${text.trim()} ` : '';
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onresult = (e: any) => {
-      let heard = '';
-      for (let i = 0; i < e.results.length; i++) heard += e.results[i][0].transcript;
-      setText(base + heard);
+      // Se usa solo el último resultado: en algunos celulares Android los anteriores se repiten.
+      const last = e.results[e.results.length - 1];
+      setText(base + collapseRepeat(String(last[0].transcript).trim()));
       setUsedVoice(true);
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rec.onerror = (e: any) => {
       setListening(false);
       setError(
-        e.error === 'not-allowed'
-          ? 'Permite el micrófono para poder dictar.'
-          : 'No se pudo usar el micrófono. Puedes escribir, o usar el micrófono del teclado.',
+        e.error === 'not-allowed' || e.error === 'service-not-allowed'
+          ? 'El micrófono está bloqueado. Toca el candado junto a la dirección de la página, elige Micrófono y Permitir. Mientras tanto, puedes escribir la frase y tocar Continuar.'
+          : 'No se pudo usar el micrófono. Puedes escribir la frase, o usar el micrófono del teclado.',
       );
     };
     rec.onend = () => setListening(false);
