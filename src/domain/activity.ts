@@ -84,4 +84,6 @@ export const REMINDER_OPTIONS: { value: number | null; label: string }[] = [
   { value: 15, label: '15 minutos antes' },
   { value: 30, label: '30 minutos antes' },
   { value: 60, label: '1 hora antes' },
+  { value: 120, label: '2 horas antes' },
+  { value: 180, label: '3 horas antes' },
 ];

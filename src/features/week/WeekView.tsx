@@ -16,6 +16,7 @@ import {
   toMinutes,
   weekdayShort,
 } from '../../domain/time';
+import FabBar from '../../components/FabBar';
 import SyncStatus from '../sync/SyncStatus';
 import { useNow } from '../day/useNow';
 
@@ -24,14 +25,15 @@ interface Props {
   onWeekStartChange: (weekStart: string) => void;
   onOpenDay: (date: string) => void;
   onNew: () => void;
+  onQuick: () => void;
 }
 
-// Deslizar el dedo hacia la izquierda lleva a la semana pasada, hacia la derecha a la siguiente.
-// Si se siente al revés, basta con cambiar este valor a false.
-const SWIPE_LEFT_IS_PREVIOUS = true;
-const BAR_HEIGHT = 360; // px
+// Deslizar el dedo hacia la izquierda lleva a la semana siguiente, hacia la derecha a la pasada.
+// Si se siente al revés, basta con cambiar este valor a true.
+const SWIPE_LEFT_IS_PREVIOUS = false;
+const BAR_HEIGHT = 400; // px
 
-export default function WeekView({ weekStart, onWeekStartChange, onOpenDay, onNew }: Props) {
+export default function WeekView({ weekStart, onWeekStartChange, onOpenDay, onNew, onQuick }: Props) {
   const now = useNow();
   const today = toISODate(now);
   const thisWeek = startOfWeek(today);
@@ -66,7 +68,7 @@ export default function WeekView({ weekStart, onWeekStartChange, onOpenDay, onNe
   const nowMin = nowMinutes(now);
 
   const ticks: number[] = [];
-  for (let h = minH; h <= maxH; h += 4) ticks.push(h);
+  for (let h = minH; h <= maxH; h += 2) ticks.push(h);
 
   const { weekday, rest } = formatLongDate(today);
   const todayPending = (byDate.get(today) ?? []).filter((a) => a.status === 'pending').length;
@@ -195,7 +197,11 @@ export default function WeekView({ weekStart, onWeekStartChange, onOpenDay, onNe
                       left: `${(b.lane / b.lanes) * 100}%`,
                       width: `${100 / b.lanes}%`,
                     }}
-                  />
+                  >
+                    {b.lanes === 1 && (b.height / 100) * BAR_HEIGHT >= 16 && (
+                      <span className="blk__t">{b.activity.startTime}</span>
+                    )}
+                  </span>
                 ))}
                 {nowTop !== null && <span className="col__now" style={{ top: `${nowTop}%` }} />}
               </span>
@@ -207,11 +213,7 @@ export default function WeekView({ weekStart, onWeekStartChange, onOpenDay, onNe
 
       <p className="hint">Desliza para cambiar de semana. Toca un día para ver sus actividades.</p>
 
-      <div className="fab-wrap">
-        <button type="button" className="fab" onClick={onNew}>
-          + Nueva actividad
-        </button>
-      </div>
+      <FabBar onNew={onNew} onQuick={onQuick} />
     </main>
   );
 }

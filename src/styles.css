@@ -207,14 +207,14 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
 .weeklabel__title { margin: 0; font-size: 20px; }
 .weeklabel__range { font-size: 14px; color: var(--muted); }
 
-.cols { display: grid; grid-template-columns: 26px repeat(7, minmax(0, 1fr)); gap: 4px; touch-action: pan-y; }
+.cols { display: grid; grid-template-columns: 30px repeat(7, minmax(0, 1fr)); gap: 4px; touch-action: pan-y; }
 
 .axis { padding-top: 7px; }
 .axis__head { display: block; height: 48px; }
 .axis__bar { position: relative; display: block; height: var(--bar-h); }
 .axis__tick {
-  position: absolute; right: 2px; transform: translateY(-50%);
-  font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
+  position: absolute; right: 3px; transform: translateY(-50%);
+  font-size: 12px; font-weight: 700; color: var(--ink); opacity: 0.75; font-variant-numeric: tabular-nums;
 }
 
 .col {
@@ -237,7 +237,7 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
 .col__bar {
   position: relative; display: block; height: var(--bar-h); overflow: hidden; border-radius: 8px;
   background-color: #e3e9e7;
-  background-image: linear-gradient(to bottom, rgba(18, 34, 43, 0.1) 1px, transparent 1px);
+  background-image: linear-gradient(to bottom, rgba(18, 34, 43, 0.16) 1px, transparent 1px);
   background-size: 100% calc(100% / var(--rows));
 }
 .blk { position: absolute; box-sizing: border-box; border-radius: 4px; border: 1px solid rgba(18, 34, 43, 0.3); }
@@ -256,3 +256,28 @@ button { cursor: pointer; border: 0; background: none; padding: 0; }
   padding-left: 12px; border-left: 6px solid transparent;
   border-image: linear-gradient(to bottom, #f6c400 0 50%, #1c4fa0 50% 75%, #d62e2e 75% 100%) 1;
 }
+
+.blk__t { display: block; padding-top: 2px; text-align: center; font-size: 10px; font-weight: 700; line-height: 1; color: #ffffff; font-variant-numeric: tabular-nums; }
+.blk--yellow .blk__t, .blk--none .blk__t { color: var(--ink); }
+
+/* ---------- Barra inferior ---------- */
+.fab-row { display: flex; gap: 10px; max-width: 528px; margin: 0 auto; }
+.fab-row .fab { flex: 1 1 0; width: auto; margin: 0; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.fab--ghost { background: var(--surface); color: var(--accent); border: 2px solid var(--accent); }
+
+/* ---------- Mapa ---------- */
+.row--map { grid-template-columns: 52px 1fr 44px 48px; }
+.mapbtn {
+  align-self: center; width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--accent); color: var(--accent); background: var(--surface);
+  display: grid; place-items: center; text-decoration: none;
+}
+.maplink { display: inline-block; margin: -6px 0 14px; padding: 6px 0; font-weight: 700; color: var(--accent); }
+.field__hint { display: block; margin-top: 4px; font-size: 13px; color: var(--muted); }
+
+/* ---------- IA y cuenta ---------- */
+.notice { margin: 0 0 16px; padding: 12px 14px; background: #eaf3f4; border: 1px solid var(--accent); border-radius: var(--radius); }
+.notice__title { margin: 0; font-weight: 700; }
+.notice__list { margin: 6px 0 0; padding-left: 18px; font-size: 15px; }
+.mic.is-on { background: var(--p-red); border-color: var(--p-red); color: #ffffff; }
+.ok { margin: 0 0 12px; color: var(--p-green); font-weight: 700; }

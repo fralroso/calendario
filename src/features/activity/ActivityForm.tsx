@@ -14,11 +14,14 @@ import {
   type Status,
 } from '../../domain/activity';
 import { findConflicts } from '../../domain/conflicts';
+import { extractMapLink } from '../../domain/maps';
 import { pad, toISODate, toMinutes } from '../../domain/time';
 
 interface Props {
   initial: Activity | null; // null = actividad nueva
   defaultDate: string;
+  prefill?: ActivityDraft; // datos propuestos por la IA, para revisar antes de guardar
+  hints?: string[]; // suposiciones de la IA
   onClose: () => void;
 }
 
@@ -28,16 +31,18 @@ function defaultStart(date: string): string {
   return '09:00';
 }
 
-export default function ActivityForm({ initial, defaultDate, onClose }: Props) {
-  const [title, setTitle] = useState(initial?.title ?? '');
-  const [category, setCategory] = useState<Category>(initial?.category ?? 'work');
-  const [date, setDate] = useState(initial?.date ?? defaultDate);
-  const [startTime, setStartTime] = useState(initial?.startTime ?? defaultStart(defaultDate));
-  const [endTime, setEndTime] = useState(initial?.endTime ?? '');
-  const [priority, setPriority] = useState<Priority>(initial?.priority ?? 'none');
-  const [location, setLocation] = useState(initial?.location ?? '');
-  const [notes, setNotes] = useState(initial?.notes ?? '');
-  const [reminder, setReminder] = useState<number | null>(initial ? initial.reminderMinutes : 15);
+export default function ActivityForm({ initial, defaultDate, prefill, hints, onClose }: Props) {
+  const [title, setTitle] = useState(initial?.title ?? prefill?.title ?? '');
+  const [category, setCategory] = useState<Category>(initial?.category ?? prefill?.category ?? 'work');
+  const [date, setDate] = useState(initial?.date ?? prefill?.date ?? defaultDate);
+  const [startTime, setStartTime] = useState(initial?.startTime ?? prefill?.startTime ?? defaultStart(defaultDate));
+  const [endTime, setEndTime] = useState(initial?.endTime ?? prefill?.endTime ?? '');
+  const [priority, setPriority] = useState<Priority>(initial?.priority ?? prefill?.priority ?? 'none');
+  const [location, setLocation] = useState(initial?.location ?? prefill?.location ?? '');
+  const [notes, setNotes] = useState(initial?.notes ?? prefill?.notes ?? '');
+  const [reminder, setReminder] = useState<number | null>(
+    initial ? initial.reminderMinutes : prefill ? prefill.reminderMinutes : 15,
+  );
   const [status, setStatus] = useState<Status>(initial?.status ?? 'pending');
   const [error, setError] = useState('');
   const [conflicts, setConflicts] = useState<Activity[]>([]);
@@ -62,7 +67,7 @@ export default function ActivityForm({ initial, defaultDate, onClose }: Props) {
       notes: notes.trim(),
       reminderMinutes: reminder,
       status,
-      source: initial?.source ?? 'typed',
+      source: initial?.source ?? prefill?.source ?? 'typed',
     };
   }
 
@@ -100,6 +105,8 @@ export default function ActivityForm({ initial, defaultDate, onClose }: Props) {
     }
   }
 
+  const mapLink = extractMapLink(location);
+
   return (
     <>
       <div className="backdrop" onClick={onClose} />
@@ -107,9 +114,24 @@ export default function ActivityForm({ initial, defaultDate, onClose }: Props) {
         className="sheet"
         role="dialog"
         aria-modal="true"
-        aria-label={initial ? 'Editar actividad' : 'Nueva actividad'}
+        aria-label={initial ? 'Editar actividad' : prefill ? 'Revisar actividad' : 'Nueva actividad'}
       >
-        <h2 className="sheet__title">{initial ? 'Editar actividad' : 'Nueva actividad'}</h2>
+        <h2 className="sheet__title">
+          {initial ? 'Editar actividad' : prefill ? 'Revisar actividad' : 'Nueva actividad'}
+        </h2>
+
+        {!initial && prefill && (
+          <div className="notice">
+            <p className="notice__title">Esto es lo que entendí. Revisa antes de guardar.</p>
+            {hints && hints.length > 0 && (
+              <ul className="notice__list">
+                {hints.map((h) => (
+                  <li key={h}>{h}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
         <form onSubmit={onSubmit} noValidate>
           <label className="field">
@@ -173,9 +195,17 @@ export default function ActivityForm({ initial, defaultDate, onClose }: Props) {
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Ej.: Oficina, Finca de Juan, Km 12 vía Quito"
+              placeholder="Ej.: Oficina, o pega un enlace de mapa"
             />
+            <small className="field__hint">
+              Puedes pegar un enlace de Google Maps, Apple Maps u otro mapa.
+            </small>
           </label>
+          {mapLink && (
+            <a className="maplink" href={mapLink} target="_blank" rel="noopener noreferrer">
+              Abrir en el mapa
+            </a>
+          )}
 
           <label className="field">
             <span>Notas</span>

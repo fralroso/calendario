@@ -11,6 +11,7 @@ import {
   toISODate,
   toMinutes,
 } from '../../domain/time';
+import FabBar from '../../components/FabBar';
 import SyncStatus from '../sync/SyncStatus';
 import ActivityRow from './ActivityRow';
 import { useNow } from './useNow';
@@ -20,6 +21,7 @@ interface Props {
   onDateChange: (date: string) => void;
   onBack: () => void;
   onNew: () => void;
+  onQuick: () => void;
   onOpen: (activity: Activity) => void;
 }
 
@@ -32,7 +34,7 @@ function NowMarker({ time }: { time: string }) {
   );
 }
 
-export default function DayView({ date, onDateChange, onBack, onNew, onOpen }: Props) {
+export default function DayView({ date, onDateChange, onBack, onNew, onQuick, onOpen }: Props) {
   const now = useNow();
   const today = toISODate(now);
   const items = useLiveQuery(() => listByDate(date), [date]);
@@ -118,11 +120,7 @@ export default function DayView({ date, onDateChange, onBack, onNew, onOpen }: P
         <ul className="list">{rows}</ul>
       )}
 
-      <div className="fab-wrap">
-        <button type="button" className="fab" onClick={onNew}>
-          + Nueva actividad
-        </button>
-      </div>
+      <FabBar onNew={onNew} onQuick={onQuick} />
     </main>
   );
 }

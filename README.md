@@ -37,6 +37,15 @@ Abre la dirección que muestra la terminal (normalmente http://localhost:5173).
 
 Sin las claves, la app funciona igual pero solo en el dispositivo.
 
+## Actividad rápida con IA (opcional)
+
+Usa una función de Vercel (`api/quick-add.ts`) que llama a la IA de Anthropic. Solo funciona en la
+versión publicada en Vercel, no con `npm run dev`.
+
+1. Crea una clave en console.anthropic.com (API keys). Tiene costo por uso.
+2. En Vercel: Settings > Environment Variables, agrega `ANTHROPIC_API_KEY` con esa clave
+   (tipo Secret) y vuelve a desplegar.
+
 ## Subir a GitHub y publicar en Vercel
 
     git init

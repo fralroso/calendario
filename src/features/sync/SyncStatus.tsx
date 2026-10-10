@@ -1,9 +1,9 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../data/db';
-import { signOutAndClear } from '../../data/session';
 import { supabase } from '../../data/supabase';
 import { syncErrorStore } from '../../data/sync';
+import AccountSheet from '../account/AccountSheet';
 import { useSession } from '../auth/useSession';
 
 function useOnline(): boolean {
@@ -24,6 +24,7 @@ function useOnline(): boolean {
 export default function SyncStatus() {
   const { session, ready } = useSession();
   const online = useOnline();
+  const [accountOpen, setAccountOpen] = useState(false);
   const pending = useLiveQuery(() => db.activities.where('syncState').equals('pending').count(), [], 0);
   const error = useSyncExternalStore(syncErrorStore.subscribe, syncErrorStore.getSnapshot);
 
@@ -41,17 +42,14 @@ export default function SyncStatus() {
         : 'Sin conexión';
 
   return (
-    <p className={`sync${error ? ' sync--error' : ''}`}>
-      {text}{' '}
-      <button
-        type="button"
-        className="sync__out"
-        onClick={() => {
-          void signOutAndClear();
-        }}
-      >
-        Salir
-      </button>
-    </p>
+    <>
+      <p className={`sync${error ? ' sync--error' : ''}`}>
+        {text}{' '}
+        <button type="button" className="sync__out" onClick={() => setAccountOpen(true)}>
+          Cuenta
+        </button>
+      </p>
+      {accountOpen && <AccountSheet onClose={() => setAccountOpen(false)} />}
+    </>
   );
 }
